@@ -18,17 +18,30 @@
 ) this, ->
 
 #---------------------------------------------------------------------
+#---------------------------------------------------------------------
+#---------------------------------------------------------------------
+#---------------------------------------------------------------------
+#---------------------------------------------------------------------
   FS_SIZE = 20 * 1024 * 1024
 
+  ERR_CONNECTION = -> -1
+
   basename = (path)-> path.replace /^.*[\/\\]/g, ''
+#---------------------------------------------------------------------
+  requestFileSystem = window.requestFileSystem or window.webkitRequestFileSystem
+
+#---------------------------------------------------------------------
+#---------------------------------------------------------------------
+#---------------------------------------------------------------------
+#---------------------------------------------------------------------
 
   class Blobber
     constructor: ()->
 
+    #-----------------------------------------------------------------
+
     download: (fileUrl, fileName=false, cb)->
       blobber = @
-      window.URL = window.URL or window.webkitURL
-      BlobBuilder = window.BlobBuilder or window.WebKitBlobBuilder
 
       unless fileName
         fileName = basename fileUrl
@@ -36,6 +49,9 @@
       xhr = new XMLHttpRequest()
       xhr.open "GET", fileUrl, true
       xhr.responseType = "blob"
+
+      xhr.onerror = (e) ->
+        cb ERR_CONNECTION()
 
       xhr.onload = (e) ->
         if @status is 200
@@ -52,8 +68,12 @@
 
       xhr.send()
 
+    #-----------------------------------------------------------------
+
     uploadProgress: (hdl)->
       @_on_uploadProgress = hdl
+
+    #-----------------------------------------------------------------
 
     upload: (url, formFields, cb)->
       data = new FormData
@@ -69,6 +89,9 @@
         upload.addEventListener 'progress', (e)=>
           @_on_uploadProgress e, e.loaded / e.total
 
+      xhr.onerror = (e) ->
+        cb ERR_CONNECTION()
+
       xhr.onload = (e) ->
         if @status is 200
           console.log e, this
@@ -78,13 +101,15 @@
 
       xhr.send data
 
+    #-----------------------------------------------------------------
+
     blobToFile: (blob, fileName, cb)->
       onRequestFsError  = (e)->cb e
       onCreateFileError = (e)->cb e
       onWriteFileError  = (e)->cb e
       onReadFileError   = (e)->cb e
 
-      window.webkitRequestFileSystem window.TEMPORARY, FS_SIZE, ((fs)->
+      requestFileSystem window.TEMPORARY, FS_SIZE, ((fs)->
         fs.root.getFile fileName, create: true, ((fileEntry) ->
             fileEntry.createWriter (writer)->
               writer.onwrite = ()->

@@ -1,5 +1,7 @@
 SRC := src
 DST := lib
+TEST := test
+
 COFFEE := node_modules/.bin/coffee
 
 SRC_FILES := $(shell find $(SRC) -type f -name "*.coffee")
@@ -10,8 +12,11 @@ all: $(DST_FILES)
 clean:
 	rm $(DST)/* -v
 
+test-server: all
+	node $(TEST)/server/app.js
+
 $(DST)/%.js: $(SRC)/%.coffee
 	mkdir -p $(@D)
 	$(COFFEE) --compile --stdio < $< > $@
 
-.PHONY: all clean
+.PHONY: all clean test-server

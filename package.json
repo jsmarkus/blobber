@@ -1,9 +1,9 @@
 {
 	"name":"blobber",
-	"version":"0.0.1",
+	"version":"0.0.2",
 	"devDependencies":{
 		"coffee-script":"1.6.3",
-		"mocha":"1.11.0",
+		"mocha":"1.9.0",
 		"express":"3.2.6",
 		"chai":"1.6.1"
 	}

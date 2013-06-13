@@ -27,7 +27,17 @@ app.post('/in', function (req, res) {
     } else {
         res.json(400, {err:'bad_request'});
     }
-    // if()
-    // res.json({'result':'ok'});
-    // console.log(req.files);
+    console.log(req.files.attachment.toJSON());
+});
+
+app.post('/in/404', function (req, res) {
+    res.send(404);
+});
+
+app.post('/in/break', function (req, res) {
+    res.socket.destroy();
+});
+
+app.get('/out/break', function (req, res) {
+    res.socket.destroy();
 });
